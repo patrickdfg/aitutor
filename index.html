@@ -1,0 +1,72 @@
+<!-- AI 튜터 14차시 목록 페이지 (차시를 골라 해당 자료로 이동) -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI 튜터 14차시</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f6f4ef;--paper:#fff;--ink:#1d1d1f;--sub:#5b5b63;--line:#dcd8cf;--accent:#2f4bdb;--accent-bg:#eef1ff;--mute:#a3a3aa}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){--bg:#151517;--paper:#1f1f23;--ink:#ececf0;--sub:#a4a4ad;--line:#34343b;--accent:#8ea0ff;--accent-bg:#1e2342;--mute:#6b6b73}
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Noto Sans KR","Noto Sans CJK KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;line-height:1.6;word-break:keep-all}
+main{max-width:720px;margin:0 auto;padding:32px 16px 48px}
+h1{font-size:28px;font-weight:900;margin:0 0 6px;letter-spacing:-.02em}
+.lead{color:var(--sub);margin:0 0 20px}
+h2{font-size:15px;color:var(--sub);font-weight:700;margin:26px 0 8px}
+ol{list-style:none;padding:0;margin:0;display:grid;gap:8px}
+li a,li .off{display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:12px;background:var(--paper);border:1px solid var(--line);text-decoration:none;color:inherit}
+li a:hover{border-color:var(--accent)}
+.num{flex:none;width:34px;height:34px;border-radius:9px;display:grid;place-items:center;font-weight:900;background:var(--accent-bg);color:var(--accent)}
+.off .num{background:transparent;border:1px solid var(--line);color:var(--mute)}
+.t{flex:1;min-width:0}
+.t b{display:block;font-weight:700}
+.t span{font-size:14px;color:var(--sub)}
+.off .t b{color:var(--sub);font-weight:500}
+.badge{flex:none;font-size:12px;padding:2px 8px;border-radius:99px;border:1px solid var(--line);color:var(--mute)}
+a .badge{border-color:var(--accent);color:var(--accent)}
+.foot{margin-top:32px;font-size:13px;color:var(--sub)}
+</style>
+</head>
+<body>
+<main>
+<h1>AI 튜터 14차시</h1>
+<p class="lead">차시를 눌러 자료를 연다. 자료가 준비된 차시만 열린다.</p>
+
+<h2>1부 · AI 수업 기본기</h2>
+<ol>
+  <li><a href="lessons/01.html"><span class="num">1</span><span class="t"><b>프롬프트 엔지니어링</b><span>좋은 프롬프트 5요소 · 비교 실습지</span></span><span class="badge">열기</span></a></li>
+  <li><div class="off"><span class="num">2</span><span class="t"><b>Few-shot, 생각의 사슬(CoT)</b></span><span class="badge">준비 중</span></div></li>
+  <li><div class="off"><span class="num">3</span><span class="t"><b>구조화 출력 (JSON으로 답 받기)</b></span><span class="badge">준비 중</span></div></li>
+  <li><div class="off"><span class="num">4</span><span class="t"><b>컨텍스트 엔지니어링</b></span><span class="badge">준비 중</span></div></li>
+  <li><div class="off"><span class="num">5</span><span class="t"><b>RAG (자료 검색해서 답하게 하기)</b></span><span class="badge">준비 중</span></div></li>
+</ol>
+
+<h2>2부 · 에이전트가 도는 원리</h2>
+<ol>
+  <li><div class="off"><span class="num">6</span><span class="t"><b>도구 인터페이스</b></span><span class="badge">준비 중</span></div></li>
+  <li><div class="off"><span class="num">7</span><span class="t"><b>함수 호출과 도구 사용</b></span><span class="badge">준비 중</span></div></li>
+  <li><div class="off"><span class="num">8</span><span class="t"><b>에이전트 루프 직접 짜보기</b></span><span class="badge">준비 중</span></div></li>
+</ol>
+
+<h2>3부 · 스킬 제대로 만들기</h2>
+<ol>
+  <li><div class="off"><span class="num">9</span><span class="t"><b>Agent Skills 계약과 실행 경계</b></span><span class="badge">준비 중</span></div></li>
+  <li><div class="off"><span class="num">10</span><span class="t"><b>스킬 발견과 단계적 공개</b></span><span class="badge">준비 중</span></div></li>
+  <li><div class="off"><span class="num">11</span><span class="t"><b>스킬 호출과 라우팅</b></span><span class="badge">준비 중</span></div></li>
+  <li><div class="off"><span class="num">12</span><span class="t"><b>권한, 샌드박스, 신뢰</b></span><span class="badge">준비 중</span></div></li>
+  <li><div class="off"><span class="num">13</span><span class="t"><b>스킬 평가, 패키징, 이식성</b></span><span class="badge">준비 중</span></div></li>
+</ol>
+
+<h2>마무리</h2>
+<ol>
+  <li><div class="off"><span class="num">14</span><span class="t"><b>내 스킬 하나 골라 점검·개선</b></span><span class="badge">준비 중</span></div></li>
+</ol>
+
+<p class="foot">참고 · <a href="https://github.com/rohitg00/ai-engineering-from-scratch" style="color:inherit">AI Engineering from Scratch</a> (MIT 라이선스)에서 골라 새로 구성함.</p>
+</main>
+</body>
+</html>
