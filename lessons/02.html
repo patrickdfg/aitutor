@@ -1,0 +1,82 @@
+<!-- AI 튜터 2차시 공부 노트: Few-shot, 생각의 사슬(CoT) -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>2차시 Few-shot, 생각의 사슬(CoT)</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/note.css">
+</head>
+<body>
+<main class="page">
+<div class="nav"><a href="../index.html">← 전체 차시</a><span class="sub">2 / 14</span></div>
+<p class="kicker">1부 · AI 수업 기본기 · 2차시</p>
+<h1>Few-shot, 생각의 사슬(CoT)</h1>
+<div class="motto">같은 모델이라도 어떻게 생각하게 시키느냐에 따라 정답률이 크게 달라진다. 추론 전략은 모델 성능만큼 중요하다.</div>
+
+<h2>핵심 정리</h2>
+<h3>Few-shot (예시 주기)</h3>
+<ul>
+<li>추상적인 지시보다 예시가 더 잘 통한다. 원문 기준 여러 단계 계산·기호 추론에서 정확도가 10~25% 올랐다.</li>
+<li>예시는 <b>3~5개</b>가 적당하다.</li>
+<li>예시 고르는 기준 세 가지 — 실제 질문과 비슷할 것, 답의 종류가 골고루 섞일 것, 난이도가 맞을 것.</li>
+<li>비슷한 예시를 고르면 무작위 예시보다 5~15% 낫다. 양보다 질이다.</li>
+</ul>
+<h3>CoT (생각의 사슬)</h3>
+<ul>
+<li>모델이 쓴 글자 하나하나가 다음 글자의 재료가 된다. 그래서 중간 풀이를 쓰게 하면 계산을 밖으로 꺼내 놓는 효과가 있다.</li>
+<li>두 방식 — "단계별로 생각해 보자"를 붙이는 <b>제로샷 CoT</b>, 풀이가 적힌 예시를 주는 <b>퓨샷 CoT</b>.</li>
+<li>단순한 사실 질문에는 오히려 손해다. 50~200토큰이 더 든다.</li>
+<li>추론 모델(o 시리즈, DeepSeek-R1 등)은 이미 속으로 단계를 밟으므로 "단계별로"를 붙일 필요가 없다.</li>
+</ul>
+<h3>더 센 기법들</h3>
+<div class="scroll"><table>
+<tr><th>기법</th><th>방법</th><th>비용</th></tr>
+<tr><td>자기 일관성</td><td>같은 문제를 여러 번(온도 0.7) 풀게 하고 다수결. 5번이면 효과 대부분을 얻는다.</td><td>호출 5배</td></tr>
+<tr><td>생각의 나무(ToT)</td><td>여러 갈래로 풀이를 뻗고, 모델이 각 갈래를 채점해 좋은 갈래만 이어 간다.</td><td>호출 10~40회 이상</td></tr>
+<tr><td>ReAct</td><td>생각과 도구 사용(검색·계산)을 번갈아 한다. 8차시 에이전트 루프의 뿌리.</td><td>도구 호출만큼</td></tr>
+<tr><td>프롬프트 체이닝</td><td>한 단계 결과를 다음 단계 입력으로. 단계마다 중간 점검이 가능하다.</td><td>단계 수만큼</td></tr>
+</table></div>
+<p class="sub">원문 수치 예시 — 초등 수학(GSM8K)에서 제로샷 94% → 제로샷 CoT 97% → 퓨샷 CoT 98%. 24 만들기 게임은 일반 7.3%, CoT 4.0%, ToT 74%.</p>
+<div class="warn">자기 일관성은 온도 0이면 매번 같은 답이 나와 쓸모가 없다. 온도 1이 넘으면 엉뚱한 답이 나온다.</div>
+
+<h2>코드가 하는 일</h2>
+<ol>
+<li>풀이가 적힌 수학 예시 목록을 저장한다.</li>
+<li>시스템 메시지 + 예시 + 질문을 묶고, 답을 "The answer is [숫자]" 꼴로 끝내게 강제한다. 이렇게 해야 답만 뽑아낼 수 있다.</li>
+<li>같은 문제를 5번 풀려서 답을 모아 다수결로 고르고, 일치율을 확신도로 돌려준다.</li>
+<li>단계적 승격 — 먼저 CoT 한 번, 부족하면 자기 일관성, 확신도가 0.8 미만이거나 답이 갈리면 ToT로 올린다.</li>
+</ol>
+<p>싼 방법으로 대부분 해결하고, 어려운 문제에만 비싼 방법을 쓰는 구조가 핵심이다.</p>
+
+<h2>선생님께 적용</h2>
+<div class="apply">
+<p><b class="t">수업</b> — 청소년에게 수학 서술형을 "답만 줘"와 "단계별로 풀어줘"로 비교시키면 CoT를 바로 체감한다. 같은 질문을 새 대화에서 3번 던져 답이 갈리는지 보는 것도 자기 일관성 체험이 된다.</p>
+<p><b class="t">스킬</b> — 스킬 안에 "좋은 결과 예시"를 3개 정도 넣으면 설명 문단보다 결과가 안정된다. 예시는 실제로 자주 들어오는 입력과 비슷한 것으로 고른다.</p>
+</div>
+
+<h2>직접 해볼 것</h2>
+<ol>
+<li>아래 문제를 새 대화 3개에서 각각 "답만"으로 물어보고, 또 다른 새 대화에서 "단계별로 풀고 마지막 줄에 '정답: 숫자'로 써줘"로 물어본다. 답이 갈리는지 비교한다.</li>
+</ol>
+<div class="box"><button class="copy">복사</button><div class="prompt">가게에서 모든 물건을 20% 할인한다. 원래 85,000원인 물건에 10,000원 쿠폰도 쓸 수 있다. 할인을 먼저 하고 쿠폰을 쓰는 것과, 쿠폰을 먼저 쓰고 할인하는 것 중 어느 쪽이 더 싼가? 단계별로 풀고 마지막 줄에 &#x27;정답: ○○이 ○○원 더 싸다&#x27;로 써줘.</div></div>
+<ol start="2">
+<li>자주 쓰는 스킬 하나를 골라, 지금 들어 있는 예시가 몇 개인지, 실제 입력과 비슷한지 세어 본다.</li>
+</ol>
+
+<p class="src">원문 · <a href="https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/11-llm-engineering/02-few-shot-cot">AI Engineering from Scratch, Phase 11 · Lesson 02</a> (MIT 라이선스). 수치는 원문 기준이며 모델·시점에 따라 달라질 수 있다.</p>
+<div class="bottom-nav"><a href="01.html"><small>← 이전</small>1차시 · 프롬프트 엔지니어링</a><a class="r" href="03.html"><small>다음 →</small>3차시 · 구조화 출력</a></div>
+</main>
+<script>
+document.querySelectorAll('.copy').forEach(function(btn){
+  btn.addEventListener('click', function(){
+    var t = btn.parentElement.querySelector('.prompt').innerText.trim();
+    var done=function(){btn.textContent='복사됨';setTimeout(function(){btn.textContent='복사';},1500);};
+    if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(done,function(){fb(t);done();});}else{fb(t);done();}
+  });
+});
+function fb(t){var a=document.createElement('textarea');a.value=t;a.style.position='fixed';a.style.opacity='0';document.body.appendChild(a);a.select();try{document.execCommand('copy');}catch(e){}a.remove();}
+</script>
+</body>
+</html>

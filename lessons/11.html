@@ -1,0 +1,83 @@
+<!-- AI 튜터 11차시 공부 노트: 스킬 호출과 라우팅 -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>11차시 스킬 호출과 라우팅</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/note.css">
+</head>
+<body>
+<main class="page">
+<div class="nav"><a href="../index.html">← 전체 차시</a><span class="sub">11 / 14</span></div>
+<p class="kicker">3부 · 스킬 제대로 만들기 · 11차시</p>
+<h1>스킬 호출과 라우팅</h1>
+<div class="motto">호출은 먼저 '써도 되나'(권한)를 보고, 그다음 '맞나'(관련도)를 본다. 둘을 섞으면 조용히 실패한다.</div>
+
+<h2>핵심 정리</h2>
+<h3>스킬이 시작되는 5가지 길</h3>
+<ol>
+<li>사람이 이름을 불러서 (예: <code>/release-readiness v2.4.0</code>)</li>
+<li>모델이 알아서 골라서</li>
+<li>앱이 정해진 흐름에서 켜서</li>
+<li>다른 스킬이 요청해서</li>
+<li>평가 도구가 시험하려고</li>
+</ol>
+<h3>권한 2×2</h3>
+<div class="scroll"><table>
+<tr><th>사람 호출</th><th>모델 선택</th><th>모드</th><th>예</th></tr>
+<tr><td>가능</td><td>가능</td><td>공유</td><td>코드 설명, 테스트</td></tr>
+<tr><td>가능</td><td>불가</td><td>사람 전용</td><td>배포, 결제 내보내기</td></tr>
+<tr><td>불가</td><td>가능</td><td>모델 전용</td><td>내부 안내, 지원 절차</td></tr>
+<tr><td>불가</td><td>불가</td><td>앱 전용·꺼짐</td><td>단계적 출시, 미리 불러오기</td></tr>
+</table></div>
+<p><code>user-invocable: false</code>는 사람의 직접 호출만 막고 모델 선택은 막지 않는다. 필드 이름은 프로그램마다 뜻이 다르고, 모르는 프로그램은 무시할 수도 있다.</p>
+<h3>좋은 설명의 4요소</h3>
+<ol><li>할 수 있는 일</li><li>내놓는 결과</li><li>써야 할 때</li><li>쓰지 말아야 할 때</li></ol>
+<p>"릴리스를 도와줍니다" 같은 설명은 엉뚱한 요청에도 끼어든다. 키워드를 잔뜩 늘어놓는 것도 나쁘다.</p>
+<h3>자동 선택 순서</h3>
+<ol><li>권한으로 걸러낸다</li><li>남은 것만 점수 매긴다</li><li>기준 넘는 최고점을 고른다</li><li>없으면 고르지 않는다</li></ol>
+<p>전부 점수 매긴 뒤 1등이 권한이 없어 거절되면, 쓸 수 있던 2등까지 막힌다. 그래서 거르기가 먼저다.</p>
+<h3>기록할 5단계</h3>
+<p>허용됨 → 선택됨 → 활성화됨 → 실행 중 → 완료 확인. "스킬 사용함: 예" 한 줄로는 어디서 실패했는지 알 수 없다.</p>
+
+<h2>코드가 하는 일</h2>
+<ul>
+<li>호출 주체(사람, 모델, 에이전트, 앱, 스킬, 평가 도구)와 권한 정책을 나눠 모델링한다.</li>
+<li>공통 규칙 어댑터와 확장 필드 어댑터를 따로 둔다.</li>
+<li>권한 표를 만들어 보여 주고, 요청마다 "허용 거르기 → 점수 → 선택 또는 기권" 결정을 이유와 함께 돌려준다.</li>
+<li>모델 API 없이 6가지 경로를 정해진 대로 돌려 권한 경계를 눈으로 확인한다.</li>
+</ul>
+<p>스킬끼리 부를 땐 대상, 할 일, 입력 경로, 기대 결과, 이유, 실패 시 대안, 최대 깊이를 적어 보낸다. 대화 전체를 통째로 붙이지 않는다.</p>
+
+<h2>선생님께 적용</h2>
+<div class="apply">
+<p><b class="t">설명 시험</b> — 스킬마다 "쓰면 안 되는데 단어가 겹치는 요청"(근접 사례)을 10개 만들어 보면 설명의 약점이 드러난다. 예: 자막 PPT 스킬에 "설교 요약해줘"가 들어와도 켜지면 안 된다.</p>
+<p><b class="t">중단 대비</b> — 긴 작업 스킬은 중간 결과를 파일로 남겨, 끊겨도 그 파일에서 다시 시작하게 쓴다. 보이지 않는 대화 기억에 기대지 않는다.</p>
+</div>
+
+<h2>직접 해볼 것</h2>
+<div class="box"><button class="copy">복사</button><div class="prompt">아래 스킬 description을 보고 테스트 요청을 만들어줘.
+- 켜져야 하는 요청 5개 (말투를 바꾼 것 포함)
+- 켜지면 안 되는데 단어가 겹치는 요청 5개
+- 완전히 무관한 요청 3개
+그리고 지금 description으로 헷갈릴 만한 요청을 짚고, 할 수 있는 일/결과/써야 할 때/쓰지 말 때 4요소를 넣은 새 description을 제안해줘.
+
+[description 붙여넣기]</div></div>
+
+<p class="src">원문 · <a href="https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/13-tools-and-protocols/25-skill-invocation-and-routing">AI Engineering from Scratch, Phase 13 · Lesson 25</a> (MIT 라이선스). 수치는 원문 기준이며 모델·시점에 따라 달라질 수 있다.</p>
+<div class="bottom-nav"><a href="10.html"><small>← 이전</small>10차시 · 스킬 발견과 단계적 공개</a><a class="r" href="12.html"><small>다음 →</small>12차시 · 권한, 샌드박스, 신뢰</a></div>
+</main>
+<script>
+document.querySelectorAll('.copy').forEach(function(btn){
+  btn.addEventListener('click', function(){
+    var t = btn.parentElement.querySelector('.prompt').innerText.trim();
+    var done=function(){btn.textContent='복사됨';setTimeout(function(){btn.textContent='복사';},1500);};
+    if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(done,function(){fb(t);done();});}else{fb(t);done();}
+  });
+});
+function fb(t){var a=document.createElement('textarea');a.value=t;a.style.position='fixed';a.style.opacity='0';document.body.appendChild(a);a.select();try{document.execCommand('copy');}catch(e){}a.remove();}
+</script>
+</body>
+</html>

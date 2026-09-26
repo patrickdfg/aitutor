@@ -1,0 +1,76 @@
+<!-- AI 튜터 4차시 공부 노트: 컨텍스트 엔지니어링 -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>4차시 컨텍스트 엔지니어링</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/note.css">
+</head>
+<body>
+<main class="page">
+<div class="nav"><a href="../index.html">← 전체 차시</a><span class="sub">4 / 14</span></div>
+<p class="kicker">1부 · AI 수업 기본기 · 4차시</p>
+<h1>컨텍스트 엔지니어링</h1>
+<div class="motto">컨텍스트 창은 디스크가 아니라 램이다. 잘 고른 1만 토큰이 마구 쏟아부은 10만 토큰을 이긴다.</div>
+
+<h2>핵심 정리</h2>
+<ul>
+<li>창이 커 보여도 금방 찬다. 원문 예시 코딩 도우미는 시스템 프롬프트 500 + 도구 50개 8,000 + 검색 문서 4,000 + 대화 기록 6,000 + 질문 200 + 답 자리 4,000 = 22,700토큰을 쓴다.</li>
+<li>프롬프트 문구만이 아니라 <b>창에 무엇을 넣을지</b> 정하는 게 컨텍스트 엔지니어링이다. 쓸모없는 토큰 하나가 쓸모 있는 정보 자리를 빼앗는다.</li>
+</ul>
+<h3>중간에 있으면 잊는다 (lost in the middle)</h3>
+<p>원문이 인용한 연구에서 정보가 앞이나 끝에 있으면 85~90% 찾아내지만, 가운데(40~70% 위치)에 있으면 60~70%로 떨어졌다. 그래서 배치 순서가 중요하다.</p>
+<ul>
+<li>가장 중요한 것 → 맨 앞 (시스템 프롬프트)</li>
+<li>지금 질문 → 맨 끝</li>
+<li>덜 중요한 것 → 가운데</li>
+</ul>
+<h3>줄이는 기술</h3>
+<div class="scroll"><table>
+<tr><th>기술</th><th>내용</th></tr>
+<tr><td>대화 요약</td><td>10턴 원문(약 2,000토큰)을 "X를 논의, Y로 결정, Z를 원함"(약 100토큰)으로</td></tr>
+<tr><td>도구 추리기</td><td>질문 의도를 보고 필요한 도구만. 도구 설명 8,000 → 약 1,000토큰</td></tr>
+<tr><td>관련도 걸러내기</td><td>관련도 낮은 문서는 버린다. 좋은 문서 3개가 그저 그런 문서 10개보다 낫다</td></tr>
+<tr><td>기억 나누기</td><td>단기(지금 대화) · 장기(선호·사실, DB에 저장) · 일화(지난 대화, 비슷할 때 불러옴)</td></tr>
+</table></div>
+<div class="warn">창을 꽉 채우면 답 쓸 자리가 없다. 답 자리로 2,000~4,000토큰은 남겨 둔다. 엉뚱한 검색 결과는 아예 없는 것보다 해롭다.</div>
+
+<h2>코드가 하는 일</h2>
+<ol>
+<li><code>ContextBudget</code> — 시스템·도구·기록·검색·질문·답 자리에 예산을 나눠 주고 넘치지 않게 막는다.</li>
+<li><code>ConversationManager</code> — 대화가 5,000토큰을 넘으면 오래된 턴을 요약한다.</li>
+<li>질문의 의도(코드·일정·메일·조사·데이터)를 분류해 도구를 약 2,000토큰 안에서만 고른다.</li>
+<li>문서 관련도를 매기고, 높은 것을 앞과 끝에, 낮은 것을 가운데에 배치한다.</li>
+<li>이 모두를 묶어 시스템 1K · 도구 2K · 문서 3K · 기록 5K · 질문 0.5K · 답 4K로 창을 조립한다.</li>
+</ol>
+
+<h2>선생님께 적용</h2>
+<div class="apply">
+<p><b class="t">대화 습관</b> — 긴 대화가 산으로 가면 "지금까지 결정된 것만 5줄로 요약해줘"를 받아 새 대화에 붙여 시작한다. 가장 중요한 조건은 맨 앞에, 이번 요청은 맨 끝에 둔다.</p>
+<p><b class="t">스킬</b> — 스킬 하나에 모든 경우를 다 넣으면 매번 창을 차지한다. 자주 안 쓰는 부분은 참고 파일로 빼고 필요할 때만 읽게 한다 (10차시와 연결).</p>
+<p><b class="t">수업</b> — 제미나이 노트북 같은 도구에 자료를 넣을 때 "관련 자료 3개가 아무 자료 10개보다 낫다"를 직접 비교시킬 수 있다.</p>
+</div>
+
+<h2>직접 해볼 것</h2>
+<ol>
+<li>오늘 길어진 대화 하나에서 아래 프롬프트로 요약을 받아, 새 대화에 붙이고 이어서 작업해 본다. 결과가 더 나아지는지 본다.</li>
+</ol>
+<div class="box"><button class="copy">복사</button><div class="prompt">지금까지 대화에서 확정된 결정, 지켜야 할 조건, 아직 남은 일만 각각 목록으로 정리해줘. 전체 10줄 이내. 이 요약을 새 대화에 붙여 이어서 작업할 거야.</div></div>
+
+<p class="src">원문 · <a href="https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/11-llm-engineering/05-context-engineering">AI Engineering from Scratch, Phase 11 · Lesson 05</a> (MIT 라이선스). 수치는 원문 기준이며 모델·시점에 따라 달라질 수 있다.</p>
+<div class="bottom-nav"><a href="03.html"><small>← 이전</small>3차시 · 구조화 출력</a><a class="r" href="05.html"><small>다음 →</small>5차시 · RAG</a></div>
+</main>
+<script>
+document.querySelectorAll('.copy').forEach(function(btn){
+  btn.addEventListener('click', function(){
+    var t = btn.parentElement.querySelector('.prompt').innerText.trim();
+    var done=function(){btn.textContent='복사됨';setTimeout(function(){btn.textContent='복사';},1500);};
+    if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(done,function(){fb(t);done();});}else{fb(t);done();}
+  });
+});
+function fb(t){var a=document.createElement('textarea');a.value=t;a.style.position='fixed';a.style.opacity='0';document.body.appendChild(a);a.select();try{document.execCommand('copy');}catch(e){}a.remove();}
+</script>
+</body>
+</html>

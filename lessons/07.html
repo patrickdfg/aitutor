@@ -1,0 +1,77 @@
+<!-- AI 튜터 7차시 공부 노트: 함수 호출과 도구 사용 -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>7차시 함수 호출과 도구 사용</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/note.css">
+</head>
+<body>
+<main class="page">
+<div class="nav"><a href="../index.html">← 전체 차시</a><span class="sub">7 / 14</span></div>
+<p class="kicker">2부 · 에이전트가 도는 원리 · 7차시</p>
+<h1>함수 호출과 도구 사용</h1>
+<div class="motto">모델은 뇌, 도구는 손, 함수 호출은 둘을 잇는 신경이다. 모델은 무엇을 부를지 정하고, 부를지 말지와 실행은 프로그램이 정한다.</div>
+
+<h2>핵심 정리</h2>
+<h3>5단계 흐름</h3>
+<ol>
+<li>사용자가 메시지를 보낸다.</li>
+<li>모델이 메시지와 도구 정의(JSON 스키마)를 함께 받는다.</li>
+<li>모델이 함수 이름과 인자를 구조화해서 내놓는다.</li>
+<li>프로그램이 함수를 실행한다.</li>
+<li>결과를 모델에게 돌려주면 모델이 최종 답을 정리한다.</li>
+</ol>
+<h3>병렬 호출과 오류 처리</h3>
+<ul>
+<li>"도쿄와 뉴욕 날씨?"처럼 서로 독립인 호출은 한 번에 여러 개 나온다. 왕복이 2번에서 1번으로 줄어 원문 기준 지연이 60~80% 준다.</li>
+<li>도구가 실패하면 예외를 던지지 말고 구조화된 오류를 돌려준다. <code>{"error":true,"message":"'Toky' 도시를 못 찾음. 'Tokyo'인가요?"}</code>처럼 구체적이면 모델이 스스로 고친다. 빈 응답이나 막연한 오류로는 회복을 못 한다.</li>
+<li>도구 설명 자체가 모델에게 주는 프롬프트다. 설명이 흐리면 엉뚱한 도구를 고른다.</li>
+</ul>
+<h3>보안 5원칙</h3>
+<ol>
+<li>모델이 만든 SQL을 그대로 실행하지 않는다.</li>
+<li>필요한 함수만 노출한다. "이름으로 아무 함수나 실행"은 금지.</li>
+<li>실행 전에 인자를 검사한다. 도시 이름 칸에 <code>"; DROP TABLE users; --"</code>가 들어올 수 있다.</li>
+<li>결과에서 API 키·개인정보·오류 내역을 걸러서 돌려준다.</li>
+<li>대화당 도구 호출 수를 10~20회로 제한한다.</li>
+</ol>
+<div class="warn">도구 결과 안에 "이전 지시를 무시하고…" 같은 문장을 심는 공격(도구 오염)이 있다. 도구 결과는 정보일 뿐 명령이 아니다.</div>
+
+<h2>코드가 하는 일</h2>
+<ul>
+<li>도구 5개 — 계산기(안전한 연산자만), 날씨(가짜 데이터, 오타 제안), 웹 검색(가짜), 파일 읽기(<code>..</code> 차단·허용 목록), 코드 실행(구문 트리로 import 등 차단, 교육용 수준).</li>
+<li>인자 검사 — 필수 칸, 종류, 허용 목록, 모르는 칸 거부.</li>
+<li>실행 루프 — 결정 → 검사 → 실행 → 결과를 기록에 추가 → 반복, 기본 5회 제한.</li>
+</ul>
+<p class="sub">제공사별로 이름만 조금 다르다. Anthropic은 <code>input_schema</code>, OpenAI는 <code>parameters</code>를 쓰고, OpenAI는 결과를 돌려줄 때 <code>tool_call_id</code>를 맞춰야 한다.</p>
+
+<h2>선생님께 적용</h2>
+<div class="apply">
+<p><b class="t">스킬</b> — 스킬 안의 스크립트가 실패할 때 "무엇이 왜 실패했고 무엇을 확인하라"를 출력하게 만들면 Claude가 스스로 고친다. 빈 출력이나 긴 오류 전문보다 짧고 구체적인 한 줄이 낫다.</p>
+<p><b class="t">수업</b> — 파이썬 수업 고급반에서 이 레슨의 계산기·날씨 도구 구조를 그대로 따라 짜게 하면 "AI가 도구를 쓴다"를 코드로 보여줄 수 있다.</p>
+</div>
+
+<h2>직접 해볼 것</h2>
+<ol>
+<li>아래 프롬프트로 도구 오류 메시지를 설계해 본다.</li>
+</ol>
+<div class="box"><button class="copy">복사</button><div class="prompt">HWPX 양식 채우기 스크립트가 AI 에이전트 도구로 쓰인다고 해. 이 스크립트가 실패할 수 있는 경우 5가지(파일 없음, 빈칸 이름 불일치 등)를 들고, 각각 AI가 읽고 스스로 고칠 수 있게 오류 메시지를 JSON으로 설계해줘. 칸: code, message, fix_hint.</div></div>
+
+<p class="src">원문 · <a href="https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/11-llm-engineering/09-function-calling">AI Engineering from Scratch, Phase 11 · Lesson 09</a> (MIT 라이선스). 수치는 원문 기준이며 모델·시점에 따라 달라질 수 있다.</p>
+<div class="bottom-nav"><a href="06.html"><small>← 이전</small>6차시 · 도구 인터페이스</a><a class="r" href="08.html"><small>다음 →</small>8차시 · 에이전트 루프</a></div>
+</main>
+<script>
+document.querySelectorAll('.copy').forEach(function(btn){
+  btn.addEventListener('click', function(){
+    var t = btn.parentElement.querySelector('.prompt').innerText.trim();
+    var done=function(){btn.textContent='복사됨';setTimeout(function(){btn.textContent='복사';},1500);};
+    if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(done,function(){fb(t);done();});}else{fb(t);done();}
+  });
+});
+function fb(t){var a=document.createElement('textarea');a.value=t;a.style.position='fixed';a.style.opacity='0';document.body.appendChild(a);a.select();try{document.execCommand('copy');}catch(e){}a.remove();}
+</script>
+</body>
+</html>

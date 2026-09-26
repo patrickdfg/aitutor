@@ -1,0 +1,82 @@
+<!-- AI 튜터 3차시 공부 노트: 구조화 출력 -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>3차시 구조화 출력</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/note.css">
+</head>
+<body>
+<main class="page">
+<div class="nav"><a href="../index.html">← 전체 차시</a><span class="sub">3 / 14</span></div>
+<p class="kicker">1부 · AI 수업 기본기 · 3차시</p>
+<h1>구조화 출력</h1>
+<div class="motto">"JSON으로 답해줘"는 90%쯤 통한다. 나머지 10%가 프로그램을 멈춘다. 형식은 부탁이 아니라 강제해야 한다.</div>
+
+<h2>핵심 정리</h2>
+<h3>신뢰도 4단계</h3>
+<div class="scroll"><table>
+<tr><th>단계</th><th>방법</th><th>보장하는 것</th></tr>
+<tr><td>1</td><td>프롬프트로 부탁</td><td>없음 (약 90%만 성공)</td></tr>
+<tr><td>2</td><td>JSON 모드</td><td>JSON 문법은 맞지만 칸 이름·종류는 보장 안 함</td></tr>
+<tr><td>3</td><td>스키마 모드</td><td>정해 둔 칸 이름·종류·조건을 지킴</td></tr>
+<tr><td>4</td><td>제약 디코딩</td><td>글자를 고르는 순간 틀린 글자를 막아 100% 지킴</td></tr>
+</table></div>
+<ul>
+<li><b>JSON 스키마</b>가 계약서 역할을 한다. 예를 들어 <code>"price": {"type":"number","minimum":0}</code>는 음수 가격을 막는다. OpenAI·Anthropic·Gemini가 모두 쓴다.</li>
+<li><b>제약 디코딩</b> — <code>{"price":</code>까지 썼다면 다음엔 숫자·따옴표·null 같은 것만 허용하고 나머지 글자의 확률을 0으로 만든다. 이건 프롬프트 문제가 아니라 글자 선택(디코딩) 문제다.</li>
+<li>파이썬에선 Pydantic 모델로 스키마를 자동으로 만든다. Instructor 같은 도구는 결과를 검사하고 틀리면 오류를 알려 주며 다시 시킨다.</li>
+<li>Anthropic의 도구 사용, OpenAI의 함수 호출도 사실상 구조화 출력이다.</li>
+</ul>
+<h3>자주 나는 실패</h3>
+<ul>
+<li><b>그럴듯한 가짜 값</b> — 형식은 맞는데 내용을 지어낸다 (본문엔 348달러인데 299.99달러로 씀). 형식 검사로는 못 잡는다.</li>
+<li>허용 목록에 없는 비슷한 값을 쓴다.</li>
+<li>중첩이 4단계 넘게 깊어지면 오류가 급격히 는다.</li>
+<li>개수 조건(최소·최대 개수)을 어긴다.</li>
+<li>선택 칸은 빼 버린다. 필수로 두고 없으면 null을 쓰게 하는 게 낫다.</li>
+</ul>
+
+<h2>코드가 하는 일</h2>
+<ol>
+<li>파이썬 값이 스키마에 맞는지 재귀적으로 검사하고 틀린 곳을 모두 모은다.</li>
+<li>파이썬 클래스 정의를 JSON 스키마로 바꾼다.</li>
+<li>쓰다 만 JSON을 보고 다음에 올 수 있는 글자 종류를 계산한다 (제약 디코딩 흉내).</li>
+<li>상품 설명에서 정보를 뽑아 → JSON 해석 → 검사 → 틀리면 최대 3번 다시 시키는 파이프라인.</li>
+</ol>
+
+<h2>선생님께 적용</h2>
+<div class="apply">
+<p><b class="t">스킬</b> — 스킬 결과를 다른 단계(PPT 생성, HWPX 채우기)로 넘길 땐 "이 칸들을 이 형식으로"를 표나 JSON 틀로 명시한다. 선택 칸은 "없으면 빈칸이라고 쓸 것"처럼 필수로 바꾼다.</p>
+<p><b class="t">수업</b> — 성인 과정에서 "영수증 사진 → 날짜/가게/금액 표로" 실습을 하면 구조화 출력과 가짜 값 문제를 함께 보여줄 수 있다. 결과를 원본과 대조하는 습관까지 연결한다.</p>
+</div>
+
+<h2>직접 해볼 것</h2>
+<ol>
+<li>아래 프롬프트를 넣고, 결과 JSON의 값이 본문과 정확히 같은지 하나씩 대조한다.</li>
+</ol>
+<div class="box"><button class="copy">복사</button><div class="prompt">아래 글에서 정보를 뽑아 JSON 하나만 출력해줘. 설명이나 코드 블록 표시 없이 JSON만.
+칸: name(문자열), price_won(숫자), in_stock(true/false), colors(문자열 목록), warranty_years(숫자, 없으면 null)
+
+글: 새로 나온 무선 이어폰 &#x27;소리온 미니&#x27;는 89,000원이다. 화이트와 네이비 두 가지 색이 있고, 네이비는 현재 품절이다. 충전 케이스 포함.</div></div>
+<ol start="2">
+<li>같은 글로 "JSON으로 정리해줘"만 넣어 보고, 칸 이름이 매번 달라지는지 비교한다.</li>
+</ol>
+
+<p class="src">원문 · <a href="https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/11-llm-engineering/03-structured-outputs">AI Engineering from Scratch, Phase 11 · Lesson 03</a> (MIT 라이선스). 수치는 원문 기준이며 모델·시점에 따라 달라질 수 있다.</p>
+<div class="bottom-nav"><a href="02.html"><small>← 이전</small>2차시 · Few-shot, 생각의 사슬(CoT)</a><a class="r" href="04.html"><small>다음 →</small>4차시 · 컨텍스트 엔지니어링</a></div>
+</main>
+<script>
+document.querySelectorAll('.copy').forEach(function(btn){
+  btn.addEventListener('click', function(){
+    var t = btn.parentElement.querySelector('.prompt').innerText.trim();
+    var done=function(){btn.textContent='복사됨';setTimeout(function(){btn.textContent='복사';},1500);};
+    if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(done,function(){fb(t);done();});}else{fb(t);done();}
+  });
+});
+function fb(t){var a=document.createElement('textarea');a.value=t;a.style.position='fixed';a.style.opacity='0';document.body.appendChild(a);a.select();try{document.execCommand('copy');}catch(e){}a.remove();}
+</script>
+</body>
+</html>

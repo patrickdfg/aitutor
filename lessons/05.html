@@ -1,0 +1,74 @@
+<!-- AI 튜터 5차시 공부 노트: RAG -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>5차시 RAG</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/note.css">
+</head>
+<body>
+<main class="page">
+<div class="nav"><a href="../index.html">← 전체 차시</a><span class="sub">5 / 14</span></div>
+<p class="kicker">1부 · AI 수업 기본기 · 5차시</p>
+<h1>RAG</h1>
+<div class="motto">모델이 모르는 건 가르치지 말고 찾아서 보여줘라. 질문 → 검색 → 프롬프트에 붙이기 → 답하기.</div>
+
+<h2>핵심 정리</h2>
+<h3>왜 파인튜닝 대신 RAG인가</h3>
+<ul>
+<li>비용 — 원문 기준 RAG는 질문당 0.01~0.1달러, 파인튜닝은 한 번에 1,000~100,000달러 이상.</li>
+<li>최신성 — 문서만 바꾸면 몇 분 만에 반영된다.</li>
+<li>근거 — 어떤 문서를 보고 답했는지 확인할 수 있어 지어내기가 준다.</li>
+<li>파인튜닝이 나은 경우는 특정 말투나 추론 방식을 몸에 익혀야 할 때뿐이다.</li>
+</ul>
+<h3>구성 요소</h3>
+<div class="scroll"><table>
+<tr><th>요소</th><th>설명</th></tr>
+<tr><td>청크 나누기</td><td>문서를 256~512토큰 조각으로, 50토큰씩 겹치게. 제목 → 문단 → 문장 순으로 큰 경계부터 자른다.</td></tr>
+<tr><td>임베딩</td><td>글을 숫자 벡터로 바꾼다. 뜻이 비슷한 글은 가까이 모인다.</td></tr>
+<tr><td>코사인 유사도</td><td>두 벡터 사이 각도로 비슷함을 잰다 (-1~1). 글 길이 차이에 흔들리지 않는다.</td></tr>
+<tr><td>벡터 DB</td><td>연습엔 FAISS·Chroma, 서비스엔 Pinecone·pgvector·Qdrant 등.</td></tr>
+</table></div>
+<p class="sub">원문의 실무 기준 — 조각 5~10개 검색, 검색 내용 2,500~5,000토큰, 전체 프롬프트 8,000~16,000토큰.</p>
+
+<h2>코드가 하는 일</h2>
+<ol>
+<li><b>색인</b> — 문서를 조각내고, TF-IDF로 각 조각을 벡터로 만들어 저장한다. 드문 단어일수록 가중치가 크다.</li>
+<li><b>질문</b> — 질문도 같은 방식으로 벡터화 → 모든 조각과 코사인 유사도 비교 → 상위 k개 선택.</li>
+<li>고른 조각을 프롬프트 앞에 붙이고 질문을 뒤에 둔 뒤 모델을 부른다.</li>
+</ol>
+<p>임베딩 모델이나 벡터 DB를 바꿔도 이 흐름은 그대로다. 약 10만 개까지는 전부 비교해도 되고, 그 이상은 근사 검색(HNSW 등)을 쓴다.</p>
+
+<h2>선생님께 적용</h2>
+<div class="apply">
+<p><b class="t">수업</b> — 제미나이 노트북에 자료를 넣고 질문하는 게 바로 RAG다. 청소년 수행평가 수업에서 "자료 없이 물어보기 vs 자료 넣고 물어보기"를 비교하면 근거 있는 답이 무엇인지 보여줄 수 있다.</p>
+<p><b class="t">학원·교회 업무</b> — 규정, 안내문, 지난 설교 원고처럼 자주 찾아보는 자료는 프로젝트 파일로 넣어 두고 질문하는 방식이 RAG 원리다. 답에 출처 문단을 함께 달라고 하면 검증이 쉬워진다.</p>
+</div>
+
+<h2>직접 해볼 것</h2>
+<ol>
+<li>안내문이나 규정 문서 하나를 AI에 붙여 넣고 아래처럼 물어본다. 문서에 없는 내용을 물었을 때 "없다"고 하는지 확인한다.</li>
+</ol>
+<div class="box"><button class="copy">복사</button><div class="prompt">아래 문서에 적힌 내용만 근거로 답해줘. 답마다 근거가 된 문장을 그대로 인용해서 붙이고, 문서에 없는 내용이면 &#x27;문서에 없음&#x27;이라고만 써줘.
+
+[문서 붙여넣기]
+
+질문: </div></div>
+
+<p class="src">원문 · <a href="https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/11-llm-engineering/06-rag">AI Engineering from Scratch, Phase 11 · Lesson 06</a> (MIT 라이선스). 수치는 원문 기준이며 모델·시점에 따라 달라질 수 있다.</p>
+<div class="bottom-nav"><a href="04.html"><small>← 이전</small>4차시 · 컨텍스트 엔지니어링</a><a class="r" href="06.html"><small>다음 →</small>6차시 · 도구 인터페이스</a></div>
+</main>
+<script>
+document.querySelectorAll('.copy').forEach(function(btn){
+  btn.addEventListener('click', function(){
+    var t = btn.parentElement.querySelector('.prompt').innerText.trim();
+    var done=function(){btn.textContent='복사됨';setTimeout(function(){btn.textContent='복사';},1500);};
+    if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(done,function(){fb(t);done();});}else{fb(t);done();}
+  });
+});
+function fb(t){var a=document.createElement('textarea');a.value=t;a.style.position='fixed';a.style.opacity='0';document.body.appendChild(a);a.select();try{document.execCommand('copy');}catch(e){}a.remove();}
+</script>
+</body>
+</html>

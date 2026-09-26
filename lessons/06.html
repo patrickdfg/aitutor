@@ -1,0 +1,75 @@
+<!-- AI 튜터 6차시 공부 노트: 도구 인터페이스 -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>6차시 도구 인터페이스</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/note.css">
+</head>
+<body>
+<main class="page">
+<div class="nav"><a href="../index.html">← 전체 차시</a><span class="sub">6 / 14</span></div>
+<p class="kicker">2부 · 에이전트가 도는 원리 · 6차시</p>
+<h1>도구 인터페이스</h1>
+<div class="motto">언어 모델은 글자를 만들고, 프로그램은 행동을 한다. 그 사이를 잇는 것이 도구 인터페이스다.</div>
+
+<h2>핵심 정리</h2>
+<h3>모든 에이전트에 공통인 4단계</h3>
+<ol>
+<li><b>설명</b> — 프로그램이 도구의 이름, 설명(자연어), 입력 형식(JSON 스키마)을 알려 준다.</li>
+<li><b>결정</b> — 모델이 바로 답할지, 도구를 부를지, 거절할지 정한다.</li>
+<li><b>실행</b> — 프로그램이 인자를 스키마로 검사한 뒤 실제 함수를 돌린다.</li>
+<li><b>관찰</b> — 결과를 대화에 붙이고 모델을 다시 부른다.</li>
+</ol>
+<p>모델이 도구를 그만 부르거나 반복 한도(보통 5~20회)에 닿을 때까지 이 4단계가 돈다.</p>
+<h3>도구의 두 종류</h3>
+<div class="scroll"><table>
+<tr><th>종류</th><th>예</th><th>다루는 법</th></tr>
+<tr><td>순수 도구 (읽기만)</td><td>날씨 조회, 문서 검색</td><td>미리 불러도 안전</td></tr>
+<tr><td>결과가 남는 도구</td><td>메일 보내기, 파일 삭제, 결제</td><td>확인 절차(게이트) 필요</td></tr>
+</table></div>
+<p>메타의 "둘까지 규칙" — 믿을 수 없는 입력, 민감한 데이터, 결과가 남는 행동 세 가지를 한 턴에 다 섞지 않는다.</p>
+<ul>
+<li>모델이 원래 지원하는 함수 호출은 유효한 JSON 비율이 98~99%다. 글 속에 JSON을 쓰게 하면 5~15%가 실패한다.</li>
+<li>누가 설명하고 누가 실행하는지는 상황마다 다르다. 일반 함수 호출은 앱 개발자, MCP는 서버, A2A는 상대 에이전트. 그래도 4단계 구조는 같다.</li>
+<li>반복 한도(회로 차단기)는 선택이 아니다. 무한 반복은 실제 비용 폭탄이 된다.</li>
+</ul>
+
+<h2>코드가 하는 일</h2>
+<ol>
+<li>도구 등록부 — 도구마다 이름, 설명, 스키마, 실행 함수를 저장한다.</li>
+<li>검사기 — 표준 라이브러리만으로 종류·필수 칸·허용 목록·최소최대를 검사한다.</li>
+<li>가짜 결정자 — 모델 대신 입력 문장을 패턴으로 보고 도구를 고른다.</li>
+<li>실행기 — 최대 5턴에서 멈추는 회로 차단기를 둔다.</li>
+</ol>
+
+<h2>선생님께 적용</h2>
+<div class="apply">
+<p><b class="t">커넥터 이해</b> — Claude에 연결한 구글 캘린더·드라이브·노션이 모두 이 4단계로 돈다. "일정 만들기", "파일 지우기"처럼 결과가 남는 동작에서 확인을 묻는 이유가 바로 도구 종류 구분이다.</p>
+<p><b class="t">수업</b> — 성인·특강에서 "AI가 직접 메일을 보내게 할 때 무엇을 조심해야 하나"를 순수 도구 vs 결과가 남는 도구 표로 설명하면 이해가 빠르다.</p>
+</div>
+
+<h2>직접 해볼 것</h2>
+<ol>
+<li>지금 쓰는 커넥터 하나를 골라, 그 커넥터의 동작을 "읽기만 하는 것"과 "결과가 남는 것"으로 나눠 적어 본다.</li>
+<li>아래 프롬프트로 도구 설명 초안을 받아, 설명만 보고 AI가 언제 쓸지 알 수 있는지 검토한다.</li>
+</ol>
+<div class="box"><button class="copy">복사</button><div class="prompt">학원 출결 조회 도구를 AI 에이전트에 붙이려고 해. 도구 이름(영문 소문자와 밑줄), 한두 문장 설명(언제 쓰고 언제 쓰지 않는지 포함), JSON 스키마 입력 형식을 만들어줘. 이 도구가 읽기 전용인지 결과가 남는 도구인지도 표시해줘.</div></div>
+
+<p class="src">원문 · <a href="https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/13-tools-and-protocols/01-the-tool-interface">AI Engineering from Scratch, Phase 13 · Lesson 01</a> (MIT 라이선스). 수치는 원문 기준이며 모델·시점에 따라 달라질 수 있다.</p>
+<div class="bottom-nav"><a href="05.html"><small>← 이전</small>5차시 · RAG</a><a class="r" href="07.html"><small>다음 →</small>7차시 · 함수 호출과 도구 사용</a></div>
+</main>
+<script>
+document.querySelectorAll('.copy').forEach(function(btn){
+  btn.addEventListener('click', function(){
+    var t = btn.parentElement.querySelector('.prompt').innerText.trim();
+    var done=function(){btn.textContent='복사됨';setTimeout(function(){btn.textContent='복사';},1500);};
+    if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(done,function(){fb(t);done();});}else{fb(t);done();}
+  });
+});
+function fb(t){var a=document.createElement('textarea');a.value=t;a.style.position='fixed';a.style.opacity='0';document.body.appendChild(a);a.select();try{document.execCommand('copy');}catch(e){}a.remove();}
+</script>
+</body>
+</html>

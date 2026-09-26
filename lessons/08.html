@@ -1,0 +1,93 @@
+<!-- AI 튜터 8차시 공부 노트: 에이전트 루프 -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>8차시 에이전트 루프</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/note.css">
+</head>
+<body>
+<main class="page">
+<div class="nav"><a href="../index.html">← 전체 차시</a><span class="sub">8 / 14</span></div>
+<p class="kicker">2부 · 에이전트가 도는 원리 · 8차시</p>
+<h1>에이전트 루프</h1>
+<div class="motto">모든 에이전트는 같은 고리를 돈다. 관찰 → 생각 → 행동 → 관찰. 프레임워크는 그 고리 둘레의 장식이다.</div>
+
+<h2>핵심 정리</h2>
+<ul>
+<li>Claude Agent SDK, Cursor, Devin 같은 에이전트는 모두 2022년 <b>ReAct</b>(추론 + 행동) 고리의 변형이다.</li>
+<li>언어 모델만으로는 사실 확인, 파일 읽기, 잘못 고치기를 못 한다. 도구 결과로 땅에 발을 붙이는 게 ReAct다. 원문 기준 ALFWorld +34점, WebShop +10점.</li>
+<li>2026년 변화 — 예전엔 <code>Thought:</code>를 글로 쓰게 했지만 지금은 모델 내부 추론 채널로 분리된다. 고리 자체는 그대로다.</li>
+</ul>
+<h3>에이전트의 필수 재료 5가지</h3>
+<ol>
+<li><b>메시지 버퍼</b> — 사용자, 모델, 도구 결과가 차례로 쌓인다.</li>
+<li><b>도구 등록부</b> — 이름과 실행 함수, 입력 검사.</li>
+<li><b>멈춤 조건</b> — 완료 선언, 도구 호출 없음, 최대 턴 초과, 토큰 소진, 안전장치 작동.</li>
+<li><b>턴 예산</b> — 반복 한도. 원문 기준 요즘은 작업당 40~400단계도 보통이다.</li>
+<li><b>관찰 정리기</b> — 오류(400 등)까지 포함해 모든 도구 결과를 읽을 수 있는 글로 바꾼다.</li>
+</ol>
+<h3>핵심 고리 (의사 코드)</h3>
+<pre><code>def run(query, tools):
+    history = [user(query)]
+    for step in range(MAX_STEPS):
+        msg = llm(history)
+        if msg.tool_calls:
+            for call in msg.tool_calls:
+                result = tools[call.name](**call.args)
+                history.append(tool_result(call.id, result))
+            continue
+        return msg.content
+    raise StepLimitExceeded</code></pre>
+<p class="sub">원문 README에 실린 예시. 도구를 부르면 결과를 붙이고 다시 돌고, 도구 없이 답하면 끝난다.</p>
+<h3>2026년의 함정</h3>
+<ul>
+<li><b>신뢰 경계 붕괴</b> — 도구 결과는 믿을 수 없는 입력이다. 악성 PDF나 검색 결과 속 지시가 모델을 조종할 수 있다.</li>
+<li><b>연쇄 실패</b> — 잘못된 값 하나가 뒤 단계로 번진다. 400 오류를 받고도 성공했다고 지어내기도 한다.</li>
+<li><b>긴 고리</b> — 38번째 단계 오류를 찾으려면 기록(트레이스)이 필요하다.</li>
+</ul>
+
+<h2>코드가 하는 일</h2>
+<ol>
+<li><code>ToolRegistry</code> — 이름과 실행 함수 연결, 입력 검사.</li>
+<li><code>ToyLLM</code> — 인터넷 없이 시험하도록 Thought/Action/Observation/Finish 줄을 정해진 대로 내놓는 가짜 모델.</li>
+<li><code>AgentLoop</code> — 버퍼를 프롬프트로 → 모델 호출 → 도구 호출 해석 → 실행 → 결과 수집 → 멈춤 조건 확인 → 반복.</li>
+<li>예시 도구 — 계산기, 키-값 저장소 읽기·쓰기. 표준 라이브러리만, 200줄 이내.</li>
+</ol>
+<p><code>python3 code/main.py</code>를 돌리면 생각·도구 호출·관찰·최종 답이 순서대로 찍힌다.</p>
+
+<h2>선생님께 적용</h2>
+<div class="apply">
+<p><b class="t">수업</b> — 파이썬 고급반·성인 과정에서 이 20줄 남짓한 고리를 칠판에 그리면 "AI 에이전트"가 마법이 아니라 반복문이라는 걸 보여줄 수 있다. 가짜 모델(ToyLLM) 방식이라 API 키 없이 수업 가능하다.</p>
+<p><b class="t">Claude 작업 이해</b> — Claude가 파일을 만들고 렌더해서 확인하는 과정도 이 고리다. 결과를 눈으로 확인하는 단계(관찰)를 요구하는 선생님의 검증 원칙이 연쇄 실패를 막는 장치다.</p>
+</div>
+
+<h2>직접 해볼 것 (PC 권장)</h2>
+<ol>
+<li>저장소를 받아 레슨 코드를 돌려 본다.</li>
+</ol>
+<pre><code>git clone https://github.com/rohitg00/ai-engineering-from-scratch.git
+cd ai-engineering-from-scratch
+python3 phases/14-agent-engineering/01-the-agent-loop/code/main.py</code></pre>
+<ol start="2">
+<li>폰에서는 아래 프롬프트로 고리를 손으로 따라가 본다.</li>
+</ol>
+<div class="box"><button class="copy">복사</button><div class="prompt">너는 계산기 도구와 메모장(저장/읽기) 도구만 쓸 수 있는 에이전트라고 가정해. &#x27;사과 3박스(박스당 12개)와 배 2박스(박스당 8개)를 합쳐 메모장에 저장하고, 저장한 값을 읽어서 알려줘&#x27;라는 요청을 처리하는 과정을 Thought / Action / Observation 줄로 한 단계씩 써줘. 마지막은 Finish로 끝내.</div></div>
+
+<p class="src">원문 · <a href="https://github.com/rohitg00/ai-engineering-from-scratch/tree/main/phases/14-agent-engineering/01-the-agent-loop">AI Engineering from Scratch, Phase 14 · Lesson 01</a> (MIT 라이선스). 수치는 원문 기준이며 모델·시점에 따라 달라질 수 있다.</p>
+<div class="bottom-nav"><a href="07.html"><small>← 이전</small>7차시 · 함수 호출과 도구 사용</a><a class="r" href="09.html"><small>다음 →</small>9차시 · Agent Skills 계약과 실행 경계</a></div>
+</main>
+<script>
+document.querySelectorAll('.copy').forEach(function(btn){
+  btn.addEventListener('click', function(){
+    var t = btn.parentElement.querySelector('.prompt').innerText.trim();
+    var done=function(){btn.textContent='복사됨';setTimeout(function(){btn.textContent='복사';},1500);};
+    if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(done,function(){fb(t);done();});}else{fb(t);done();}
+  });
+});
+function fb(t){var a=document.createElement('textarea');a.value=t;a.style.position='fixed';a.style.opacity='0';document.body.appendChild(a);a.select();try{document.execCommand('copy');}catch(e){}a.remove();}
+</script>
+</body>
+</html>
